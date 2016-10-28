@@ -160,12 +160,7 @@ class Enterprise < ActiveRecord::Base
     select('DISTINCT enterprises.*')
   }
 
-  scope :distributing_product, lambda { |product|
-    with_distributed_products_outer.with_order_cycles_and_exchange_variants_outer.
-    where('product_distributions.product_id = ? OR spree_variants.product_id = ?', product, product).
-    select('DISTINCT enterprises.*')
-  }
-  scope :distributing_any_product_of, lambda { |products|
+  scope :distributing_products, lambda { |products|
     with_distributed_products_outer.with_order_cycles_and_exchange_variants_outer.
     where('product_distributions.product_id IN (?) OR spree_variants.product_id IN (?)', products, products).
     select('DISTINCT enterprises.*')
@@ -470,6 +465,6 @@ class Enterprise < ActiveRecord::Base
   end
 
   def touch_distributors
-    Enterprise.distributing_product(self.supplied_products).each(&:touch)
+    Enterprise.distributing_products(self.supplied_products).each(&:touch)
   end
 end
